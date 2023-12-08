@@ -7,7 +7,13 @@ from datetime import datetime
 from math import sqrt  # Import sqrt for square root calculation
 
 class CalculatorApp:
-    def __init__(self, master):
+    def __init__(self, master: tk.Tk):
+        """
+        Initializes the CalculatorApp.
+
+        Args:
+            master (tk.Tk): The root window of the application.
+        """
         self.master = master
         self.master.title("Advanced Calculator")
 
@@ -17,6 +23,9 @@ class CalculatorApp:
         self.create_widgets()
 
     def create_widgets(self):
+        """
+        Creates and configures the widgets for the calculator GUI.
+        """
         entry = tk.Entry(self.master, textvariable=self.result_var, font=('Helvetica', 14), bd=10, relief='ridge', justify='right')
         entry.grid(row=0, column=0, columnspan=4)
         entry.bind('<Return>', self.on_return_key_pressed)
@@ -46,10 +55,28 @@ class CalculatorApp:
         for c in range(4):
             self.master.grid_columnconfigure(c, weight=1)
 
-    def on_return_key_pressed(self, event):
+    def on_return_key_pressed(self, event: tk.Event):
+        """
+        Event handler for the 'Return' key press event.
+
+        Args:
+            event (tk.Event): The event object.
+        """
         self.on_button_click('=')
 
-    def evaluate_expression(self, expression):
+    def evaluate_expression(self, expression: str) -> str:
+        """
+        Evaluates a mathematical expression.
+
+        Args:
+            expression (str): The mathematical expression to be evaluated.
+
+        Returns:
+            str: The result of the evaluated expression as a string.
+
+        Raises:
+            ValueError: If the expression contains unmatched parentheses or encounters an evaluation error.
+        """
         try:
             result = ExpressionEvaluator.evaluate_expression(expression)
             self.save_calculation(expression, result)
@@ -58,7 +85,13 @@ class CalculatorApp:
             print(ve)
             return "Error"
 
-    def on_button_click(self, value):
+    def on_button_click(self, value: str):
+        """
+        Event handler for button clicks.
+
+        Args:
+            value (str): The value associated with the clicked button.
+        """
         current_text = self.result_var.get()
 
         if value == '=':
@@ -86,14 +119,26 @@ class CalculatorApp:
             except ValueError as ve:
                 print(ve)
                 self.result_var.set("Error")
-
+        elif value == '(':
+            # Handle the case when '(' is added after '0'
+            if current_text == '0':
+                self.result_var.set(value)
+            else:
+                self.result_var.set(current_text + value)
         else:
             if current_text == '0' and value.isdigit():
                 self.result_var.set(value)
             else:
                 self.result_var.set(current_text + value)
 
-    def save_calculation(self, expression, result):
+    def save_calculation(self, expression: str, result: str):
+        """
+        Saves a calculation to a CSV file.
+
+        Args:
+            expression (str): The mathematical expression.
+            result (str): The result of the expression.
+        """
         # Get the user's home directory
         home_dir = os.path.expanduser("~")
         file_path = os.path.join(home_dir, 'calculation_history.csv')
